@@ -12,50 +12,72 @@ export function ResultNode({ data }) {
   };
 
   return (
-    <div className="node-box min-w-[350px] max-w-[400px]">
+    <div className={`node-box min-w-[300px] max-w-[350px] ${
+      data.darkMode 
+        ? 'bg-gray-800 border-gray-700' 
+        : 'bg-white border-gray-200'
+    } border rounded-2xl p-4 shadow-lg`}>
       <div className="flex items-center gap-3 mb-4">
-        <div className="p-2 bg-gradient-to-br from-pink-100 to-purple-100 rounded-lg">
-          <Sparkles className="w-5 h-5 text-pink-600" />
+        <div className={`p-2 rounded-xl ${
+          data.darkMode
+            ? 'bg-purple-900/30'
+            : 'bg-purple-100'
+        }`}>
+          <Sparkles className={`w-5 h-5 ${
+            data.darkMode ? 'text-purple-400' : 'text-purple-600'
+          }`} />
         </div>
         <div>
-          <h3 className="font-bold text-gray-800">AI Response</h3>
-          <p className="text-sm text-gray-500">Generated answer</p>
+          <h3 className={`font-bold ${
+            data.darkMode ? 'text-gray-100' : 'text-gray-800'
+          }`}>
+            AI Response
+          </h3>
+          <p className={`text-sm ${
+            data.darkMode ? 'text-gray-400' : 'text-gray-500'
+          }`}>
+            Generated answer
+          </p>
         </div>
       </div>
 
-      <div className="relative">
+      <div className="mb-3">
         {data.isLoading ? (
-          <div className="flex flex-col items-center justify-center min-h-[120px] gap-3">
-            <div className="loading-spinner" />
-            <p className="text-sm text-gray-500">Generating response...</p>
+          <div className="flex flex-col items-center justify-center min-h-[100px]">
+            <div className="loading-pulse"></div>
+            <p className="mt-2 text-sm text-gray-500">Generating response...</p>
           </div>
         ) : data.result ? (
           <>
-            <div className="bg-gray-50 rounded-xl p-4 min-h-[120px] max-h-[300px] overflow-y-auto">
-              <div className="whitespace-pre-wrap text-gray-700 text-sm">
+            <div className={`p-3 rounded-lg min-h-[100px] max-h-[200px] overflow-y-auto ${
+              data.darkMode ? 'bg-gray-900/50' : 'bg-gray-50'
+            }`}>
+              <pre className="whitespace-pre-wrap text-sm">
                 {data.result}
-              </div>
+              </pre>
             </div>
             <button
               onClick={handleCopy}
-              className="mt-3 flex items-center gap-2 text-sm text-indigo-600 hover:text-indigo-700 transition-colors"
+              className={`mt-2 flex items-center gap-1 text-sm ${
+                data.darkMode 
+                  ? 'text-purple-400 hover:text-purple-300' 
+                  : 'text-purple-600 hover:text-purple-700'
+              }`}
             >
               {copied ? (
                 <>
-                  <Check className="w-4 h-4" />
-                  Copied!
+                  <Check className="w-4 h-4" /> Copied!
                 </>
               ) : (
                 <>
-                  <Copy className="w-4 h-4" />
-                  Copy response
+                  <Copy className="w-4 h-4" /> Copy
                 </>
               )}
             </button>
           </>
         ) : (
-          <div className="flex items-center justify-center min-h-[120px] text-gray-400">
-            <p className="text-center">Run flow to see AI response</p>
+          <div className="flex items-center justify-center min-h-[100px] text-gray-400">
+            <p>Run flow to see response</p>
           </div>
         )}
       </div>

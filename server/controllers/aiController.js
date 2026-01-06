@@ -62,6 +62,10 @@ export const generateAIResponse = async (req, res) => {
       'google/gemma-7b-it:free',
       'huggingfaceh4/zephyr-7b-beta:free',
       'openchat/openchat-7b:free',
+      'google/gemini-2.0-flash-exp:free',
+      'qwen/qwen-2.5-7b-instruct:free',
+      'microsoft/phi-3.5-mini-instruct:free',
+      'google/gemma-2-2b-it:free',
     ];
 
     logger.info(`🔄 Trying ${models.length} models:`, { models });
@@ -78,7 +82,7 @@ export const generateAIResponse = async (req, res) => {
         timeoutId = setTimeout(() => {
           controller.abort();
           logger.warn(`⏰ Timeout for model: ${model}`);
-        }, 15000); // Increased timeout to 15s
+        }, 10000); // Increased timeout to 15s
 
         const requestBody = {
           model: model,

@@ -9,42 +9,12 @@ const api = axios.create({
   },
 });
 
-// Add request interceptor for logging
-api.interceptors.request.use(
-  (config) => {
-    console.log(`📤 ${config.method?.toUpperCase()} ${config.url}`, config.data);
-    return config;
-  },
-  (error) => {
-    console.error('❌ Request error:', error);
-    return Promise.reject(error);
-  }
-);
-
-// Add response interceptor for logging
-api.interceptors.response.use(
-  (response) => {
-    console.log(`📥 ${response.status} ${response.config.url}`, response.data);
-    return response;
-  },
-  (error) => {
-    console.error('❌ Response error:', {
-      status: error.response?.status,
-      message: error.message,
-      data: error.response?.data,
-      url: error.config?.url,
-    });
-    return Promise.reject(error);
-  }
-);
-
 export const aiService = {
   generateResponse: async (prompt) => {
     try {
       const response = await api.post('/ask-ai', { prompt });
       return response.data;
     } catch (error) {
-      console.error('AI Service Error:', error);
       throw error;
     }
   },
@@ -56,7 +26,6 @@ export const aiService = {
       });
       return response.data;
     } catch (error) {
-      console.error('Get Prompts Error:', error);
       throw error;
     }
   },
@@ -66,7 +35,6 @@ export const aiService = {
       const response = await api.delete(`/prompts/${id}`);
       return response.data;
     } catch (error) {
-      console.error('Delete Prompt Error:', error);
       throw error;
     }
   },
@@ -76,7 +44,6 @@ export const aiService = {
       const result = await api.post('/save', { prompt, response });
       return result.data;
     } catch (error) {
-      console.error('Save Prompt Error:', error);
       throw error;
     }
   }
