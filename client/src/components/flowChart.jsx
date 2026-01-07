@@ -12,7 +12,7 @@ import '@xyflow/react/dist/style.css';
 import { InputNode } from './InputNode';
 import { ResultNode } from './ResultNode';
 import { aiService } from '../services/api';
-import { Play, Save, AlertCircle, CheckCircle, Settings, Maximize2, RefreshCw, CloudOff } from 'lucide-react';
+import { Play, Save, AlertCircle, CheckCircle, Maximize2, RefreshCw, CloudOff } from 'lucide-react';
 
 const nodeTypes = {
   input: InputNode,
@@ -24,7 +24,6 @@ export function FlowChart({ darkMode = false }) {
   const [result, setResult] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [notification, setNotification] = useState(null);
-  const [showSettings, setShowSettings] = useState(false);
   const [isFullScreen, setIsFullScreen] = useState(false);
   const [connectionError, setConnectionError] = useState(false);
   const [currentModel, setCurrentModel] = useState(null);
@@ -195,7 +194,7 @@ export function FlowChart({ darkMode = false }) {
         }))
       );
     }
-  }, [prompt, setNodes, setEdges, darkMode]);
+  }, [prompt, setNodes, setEdges, darkMode, connectionError]);
 
   const handleSave = useCallback(async () => {
     if (!prompt.trim() || !result.trim() || result.includes('Error:')) {
@@ -334,13 +333,13 @@ export function FlowChart({ darkMode = false }) {
       )}
 
       {/* Modern Control Bar */}
-      <div className="flex items-center justify-between px-6 py-4 border-b border-white/10">
+      <div className={`flex items-center justify-between px-6 py-4 border-b ${darkMode ? 'border-white/10' : 'border-gray-300'}`}>
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-3">
             <div className={`px-4 py-2 rounded-xl ${darkMode ? 'bg-white/10' : 'bg-gray-100'}`}>
               <span className="font-medium">AI Pipeline</span>
             </div>
-            <div className="flex items-center gap-2 text-sm opacity-70">
+            <div className={`flex items-center gap-2 text-sm ${darkMode ? 'opacity-70' : 'opacity-60'}`}>
               <div className={`w-2 h-2 rounded-full ${connectionError ? 'bg-red-500' : 'bg-green-500'} animate-pulse`}></div>
               <span>{connectionError ? 'Limited' : 'Live'}</span>
             </div>
@@ -353,13 +352,6 @@ export function FlowChart({ darkMode = false }) {
         </div>
 
         <div className="flex items-center gap-3">
-          <button
-            onClick={() => setShowSettings(!showSettings)}
-            className={`p-3 rounded-xl transition-all-300 ${darkMode ? 'hover:bg-white/10' : 'hover:bg-gray-100'}`}
-          >
-            <Settings className="w-5 h-5" />
-          </button>
-          
           <button
             onClick={toggleFullScreen}
             className={`p-3 rounded-xl transition-all-300 ${darkMode ? 'hover:bg-white/10' : 'hover:bg-gray-100'}`}
@@ -468,58 +460,6 @@ export function FlowChart({ darkMode = false }) {
           />
         </ReactFlow>
       </div>
-
-      {/* Settings Panel */}
-      {showSettings && (
-        <div className={`absolute top-20 right-6 w-64 rounded-xl shadow-2xl animate-slide-in ${
-          darkMode ? 'glass-effect' : 'bg-white/90 backdrop-blur-sm'
-        } p-4`}>
-          <h4 className="font-bold mb-4">AI Settings</h4>
-          <div className="space-y-4">
-            <div>
-              <label className="text-sm opacity-70 block mb-2">Current Model</label>
-              <div className={`p-2 rounded-lg ${darkMode ? 'bg-gray-800' : 'bg-gray-100'}`}>
-                {currentModel || 'Not selected'}
-              </div>
-            </div>
-            <div>
-              <label className="text-sm opacity-70 block mb-2">Response Length</label>
-              <select className={`w-full p-2 rounded-lg ${darkMode ? 'bg-gray-800' : 'bg-gray-100'}`}>
-                <option>Short & Concise</option>
-                <option>Medium (Default)</option>
-                <option>Detailed & Comprehensive</option>
-              </select>
-            </div>
-            <div>
-              <label className="text-sm opacity-70 block mb-2">Temperature</label>
-              <input 
-                type="range" 
-                min="0" 
-                max="1" 
-                step="0.1" 
-                defaultValue="0.7"
-                className="w-full accent-blue-500" 
-              />
-              <div className="flex justify-between text-xs opacity-70 mt-1">
-                <span>Precise</span>
-                <span>Balanced</span>
-                <span>Creative</span>
-              </div>
-            </div>
-            <div className="pt-4 border-t border-white/10">
-              <div className="flex items-center justify-between text-sm">
-                <span>Fallback Models</span>
-                <span className={`px-2 py-1 rounded ${darkMode ? 'bg-green-900/30 text-green-400' : 'bg-green-100 text-green-700'}`}>
-                  Enabled
-                </span>
-              </div>
-              <p className="text-xs opacity-70 mt-1">
-                Automatically try alternative models if one fails
-              </p>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
