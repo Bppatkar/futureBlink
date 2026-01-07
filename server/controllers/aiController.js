@@ -58,14 +58,10 @@ export const generateAIResponse = async (req, res) => {
     logger.info('✅ API key is configured');
 
     const models = [
-      'mistralai/mistral-7b-instruct',
-      'google/gemma-7b-it:free',
-      'huggingfaceh4/zephyr-7b-beta:free',
-      'openchat/openchat-7b:free',
-      'google/gemini-2.0-flash-exp:free',
-      'qwen/qwen-2.5-7b-instruct:free',
-      'microsoft/phi-3.5-mini-instruct:free',
+      'mistralai/mistral-7b-instruct:free',
       'google/gemma-2-2b-it:free',
+      'microsoft/phi-3.5-mini-instruct:free',
+      'nousresearch/hermes-3-llama-3.1-8b:free',
     ];
 
     logger.info(`🔄 Trying ${models.length} models:`, { models });
