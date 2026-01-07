@@ -12,16 +12,9 @@ function cleanAIResponse(text) {
   cleaned = cleaned.replace(/&[a-z]+;/g, '');
   cleaned = cleaned.replace(/\\u003c/g, '');
   cleaned = cleaned.replace(/\\u003e/g, '');
-  cleaned = cleaned.replace(/\s+/g, ' ').trim();
-
-  if (cleaned.length > 0 && !/[.!?]$/.test(cleaned)) {
-    cleaned += '.';
-  }
-
-  if (cleaned.length > 0) {
-    cleaned = cleaned.charAt(0).toUpperCase() + cleaned.slice(1);
-  }
-
+  
+  cleaned = cleaned.split('\n').map(line => line.replace(/\s+/g, ' ').trim()).join('\n');
+  
   return cleaned;
 }
 
@@ -62,6 +55,14 @@ export const generateAIResponse = async (req, res) => {
       'google/gemma-2-2b-it:free',
       'microsoft/phi-3.5-mini-instruct:free',
       'nousresearch/hermes-3-llama-3.1-8b:free',
+      'meta-llama/llama-3.2-3b-instruct:free',
+      'openchat/openchat-3.5-1210:free',
+      'undi95/toppy-m-7b:free',
+      'gryphe/mythomist-7b:free',
+      'lizpreciatior/lzlv-70b-fp16-hf:free',
+      'huggingfaceh4/zephyr-7b-beta:free',
+      'rwkv/rwkv-5-world-3b:free',
+      'jebcarter/psyfighter-13b:free',
     ];
 
     logger.info(`🔄 Trying ${models.length} models:`, { models });
@@ -78,7 +79,7 @@ export const generateAIResponse = async (req, res) => {
         timeoutId = setTimeout(() => {
           controller.abort();
           logger.warn(`⏰ Timeout for model: ${model}`);
-        }, 10000); // Increased timeout to 15s
+        }, 15000); 
 
         const requestBody = {
           model: model,
@@ -89,7 +90,7 @@ export const generateAIResponse = async (req, res) => {
             },
           ],
           temperature: 0.7,
-          max_tokens: 300,
+          max_tokens: 500, 
         };
 
         logger.debug('📤 Sending request to OpenRouter', {
@@ -110,7 +111,7 @@ export const generateAIResponse = async (req, res) => {
             'X-Title': 'FutureBlink AI',
           },
           signal: controller.signal,
-          timeout: 15000,
+          timeout: 16000,
         });
 
         clearTimeout(timeoutId);
@@ -155,7 +156,6 @@ export const generateAIResponse = async (req, res) => {
           attempt: attemptCount,
         });
 
-        // Check specific error types
         if (error.response?.status === 404) {
           logger.warn(`📛 Model "${model}" not found (404), trying next...`);
           continue;
@@ -173,16 +173,14 @@ export const generateAIResponse = async (req, res) => {
 
         if (error.code === 'ENOTFOUND' || error.code === 'ECONNREFUSED') {
           logger.error('🌐 Network error - cannot reach OpenRouter');
-          break; // No point trying other models
+          break; 
         }
 
-        // For other errors, log and continue
         logger.warn(`⚠️ Unexpected error for model "${model}", trying next...`);
         continue;
       }
     }
 
-    // If we get here, all models failed
     logger.error('💥 All models failed', {
       totalAttempts: attemptCount,
       lastError: lastError?.message,
@@ -193,7 +191,7 @@ export const generateAIResponse = async (req, res) => {
     const errorMessage =
       lastError?.response?.status === 404
         ? 'AI model not found. Please try different models.'
-        : lastError?.message || 'All AI models are currently unavailable';
+        : lastError?.message || 'All AI models are currently unavailable. Please try again in a few moments.';
 
     return res.status(500).json({
       error: errorMessage,
