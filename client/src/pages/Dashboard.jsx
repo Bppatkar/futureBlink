@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { FlowChart } from '../components/FlowChart';
 import { aiService } from '../services/api';
-import { Moon, Sun, History, Zap, Cpu, Activity, X } from 'lucide-react';
+import { Moon, Sun, History, Zap, Cpu, Activity, X, Trash2 } from 'lucide-react';
 import { parseMarkdown } from '../utils/markdownParser';
 
 export default function Dashboard() {
@@ -12,6 +12,8 @@ export default function Dashboard() {
   const [selectedHistoryItem, setSelectedHistoryItem] = useState(null);
   const [aiModels, setAiModels] = useState(12);
   const [systemStatus, setSystemStatus] = useState('optimal');
+  const [deletingId, setDeletingId] = useState(null);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(null);
 
   const fetchHistory = async () => {
     try {
@@ -22,6 +24,25 @@ export default function Dashboard() {
       console.error('Failed to fetch history');
     } finally {
       setLoadingHistory(false);
+    }
+  };
+
+  const handleDeletePrompt = async (id, e) => {
+    e.stopPropagation();
+    try {
+      setDeletingId(id);
+      await aiService.deletePrompt(id);
+      setHistory(history.filter(item => item._id !== id));
+      setShowDeleteConfirm(null);
+      // If the deleted item was selected, deselect it
+      if (selectedHistoryItem?._id === id) {
+        setSelectedHistoryItem(null);
+      }
+    } catch (error) {
+      console.error('Failed to delete prompt:', error);
+      alert('Failed to delete prompt');
+    } finally {
+      setDeletingId(null);
     }
   };
 
@@ -169,15 +190,31 @@ export default function Dashboard() {
                     >
                       ← Back
                     </button>
-                    <button
-                      onClick={() => {
-                        setShowHistory(false);
-                        setSelectedHistoryItem(null);
-                      }}
-                      className={`p-2 rounded-lg hover:bg-white/10 transition-all-300`}
-                    >
-                      <X className="w-5 h-5" />
-                    </button>
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setShowDeleteConfirm(selectedHistoryItem._id);
+                        }}
+                        className={`p-2 rounded-lg transition-all-300 ${
+                          darkMode
+                            ? 'hover:bg-red-500/20 text-red-400'
+                            : 'hover:bg-red-100 text-red-600'
+                        }`}
+                        title="Delete this history item"
+                      >
+                        <Trash2 className="w-5 h-5" />
+                      </button>
+                      <button
+                        onClick={() => {
+                          setShowHistory(false);
+                          setSelectedHistoryItem(null);
+                        }}
+                        className={`p-2 rounded-lg hover:bg-white/10 transition-all-300`}
+                      >
+                        <X className="w-5 h-5" />
+                      </button>
+                    </div>
                   </div>
                   <h2 className="text-2xl font-bold mb-1">
                     {selectedHistoryItem.prompt}
@@ -264,43 +301,102 @@ export default function Dashboard() {
                       </p>
                     </div>
                   ) : (
-                    <div className="space-y-4">
-                      {history.map((item, index) => (
-                        <button
-                          key={index}
-                          onClick={() => setSelectedHistoryItem(item)}
-                          className={`w-full text-left p-4 rounded-xl transition-all-300 hover:scale-[1.02] ${
-                            darkMode
-                              ? 'bg-white/5 hover:bg-white/10'
-                              : 'bg-white/50 hover:bg-white'
-                          } backdrop-blur-sm border ${
-                            darkMode ? 'border-white/10' : 'border-gray-300'
-                          }`}
-                        >
-                          <div className="font-medium mb-2 line-clamp-1">
-                            {item.prompt}
-                          </div>
-                          <div
-                            className={`text-sm line-clamp-2 ${
-                              darkMode ? 'opacity-70' : 'opacity-60'
+                    <div className="space-y-3">
+                      {history.map((item) => (
+                        <div key={item._id} className="group relative">
+                          <button
+                            onClick={() => setSelectedHistoryItem(item)}
+                            className={`w-full text-left p-4 rounded-xl transition-all-300 hover:scale-[1.02] ${
+                              darkMode
+                                ? 'bg-white/5 hover:bg-white/10'
+                                : 'bg-white/50 hover:bg-white'
+                            } backdrop-blur-sm border ${
+                              darkMode ? 'border-white/10' : 'border-gray-300'
                             }`}
                           >
-                            {item.response}
-                          </div>
-                          <div
-                            className={`flex items-center justify-between mt-3 text-xs ${
-                              darkMode ? 'opacity-50' : 'opacity-40'
+                            <div className="font-medium mb-2 line-clamp-1">
+                              {item.prompt}
+                            </div>
+                            <div
+                              className={`text-sm line-clamp-2 ${
+                                darkMode ? 'opacity-70' : 'opacity-60'
+                              }`}
+                            >
+                              {item.response}
+                            </div>
+                            <div
+                              className={`flex items-center justify-between mt-3 text-xs ${
+                                darkMode ? 'opacity-50' : 'opacity-40'
+                              }`}
+                            >
+                              <span>
+                                {new Date(item.createdAt).toLocaleTimeString([], {
+                                  hour: '2-digit',
+                                  minute: '2-digit',
+                                })}
+                              </span>
+                              <span>{item.response?.length || 0} chars</span>
+                            </div>
+                          </button>
+
+                          {/* Delete Button - appears on hover */}
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setShowDeleteConfirm(item._id);
+                            }}
+                            className={`absolute right-3 top-1/2 -translate-y-1/2 p-2 rounded-lg opacity-0 group-hover:opacity-100 transition-all-300 ${
+                              darkMode
+                                ? 'hover:bg-red-500/20 text-red-400'
+                                : 'hover:bg-red-100 text-red-600'
                             }`}
+                            title="Delete this item"
                           >
-                            <span>
-                              {new Date(item.createdAt).toLocaleTimeString([], {
-                                hour: '2-digit',
-                                minute: '2-digit',
-                              })}
-                            </span>
-                            <span>{item.response?.length || 0} chars</span>
-                          </div>
-                        </button>
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+
+                          {/* Delete Confirmation */}
+                          {showDeleteConfirm === item._id && (
+                            <div
+                              className={`absolute inset-0 rounded-xl p-4 flex flex-col items-center justify-center gap-3 backdrop-blur-sm ${
+                                darkMode
+                                  ? 'bg-red-900/50'
+                                  : 'bg-red-100/50'
+                              } z-20`}
+                            >
+                              <p className="text-sm font-medium">Delete?</p>
+                              <div className="flex gap-2">
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleDeletePrompt(item._id, e);
+                                  }}
+                                  disabled={deletingId === item._id}
+                                  className={`px-3 py-1 rounded text-sm font-medium transition-all-300 ${
+                                    deletingId === item._id
+                                      ? 'opacity-50 cursor-not-allowed'
+                                      : 'bg-red-500 hover:bg-red-600 text-white'
+                                  }`}
+                                >
+                                  {deletingId === item._id ? 'Deleting...' : 'Yes'}
+                                </button>
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setShowDeleteConfirm(null);
+                                  }}
+                                  className={`px-3 py-1 rounded text-sm font-medium transition-all-300 ${
+                                    darkMode
+                                      ? 'bg-gray-700 hover:bg-gray-600'
+                                      : 'bg-gray-300 hover:bg-gray-400'
+                                  }`}
+                                >
+                                  No
+                                </button>
+                              </div>
+                            </div>
+                          )}
+                        </div>
                       ))}
                     </div>
                   )}
