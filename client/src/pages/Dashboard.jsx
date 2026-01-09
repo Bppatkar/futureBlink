@@ -428,7 +428,7 @@ export default function Dashboard() {
             darkMode ? 'border-white/10' : 'border-gray-300'
           }`}
         >
-          <FlowChart />
+          <FlowChart darkMode={darkMode} />
         </div>
       </div>
     </div>
