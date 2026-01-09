@@ -1,5 +1,10 @@
 # FutureBlink AI
 
+![1](https://github.com/user-attachments/assets/53cd7b23-9ac8-4acc-9b59-349cbde49a41)
+![2](https://github.com/user-attachments/assets/8bb0fbcc-b1de-4bbd-ae01-6ece17b8c0ee)
+![3](https://github.com/user-attachments/assets/51015d51-4cc2-43b3-b9de-5af6bbfc644e)
+
+
 A modern full-stack web application that generates AI responses with a beautiful visual interface using React Flow.
 
 ## 🚀 Quick Start
