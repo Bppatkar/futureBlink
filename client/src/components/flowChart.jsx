@@ -28,7 +28,7 @@ const nodeTypes = {
   result: ResultNode,
 };
 
-export function FlowChart({ darkMode = false }) {
+export default function FlowChart({ darkMode = false }) {
   const [prompt, setPrompt] = useState('');
   const [results, setResults] = useState([]);
   const [isLoading, setIsLoading] = useState(false);

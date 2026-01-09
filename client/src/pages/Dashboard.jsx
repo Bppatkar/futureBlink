@@ -1,7 +1,16 @@
 import { useState, useEffect } from 'react';
-import { FlowChart } from '../components/FlowChart';
 import { aiService } from '../services/api';
-import { Moon, Sun, History, Zap, Cpu, Activity, X, Trash2 } from 'lucide-react';
+import FlowChart from '../components/FlowChart.jsx';
+import {
+  Moon,
+  Sun,
+  History,
+  Zap,
+  Cpu,
+  Activity,
+  X,
+  Trash2,
+} from 'lucide-react';
 import { parseMarkdown } from '../utils/markdownParser';
 
 export default function Dashboard() {
@@ -32,7 +41,7 @@ export default function Dashboard() {
     try {
       setDeletingId(id);
       await aiService.deletePrompt(id);
-      setHistory(history.filter(item => item._id !== id));
+      setHistory(history.filter((item) => item._id !== id));
       setShowDeleteConfirm(null);
       // If the deleted item was selected, deselect it
       if (selectedHistoryItem?._id === id) {
@@ -330,10 +339,13 @@ export default function Dashboard() {
                               }`}
                             >
                               <span>
-                                {new Date(item.createdAt).toLocaleTimeString([], {
-                                  hour: '2-digit',
-                                  minute: '2-digit',
-                                })}
+                                {new Date(item.createdAt).toLocaleTimeString(
+                                  [],
+                                  {
+                                    hour: '2-digit',
+                                    minute: '2-digit',
+                                  }
+                                )}
                               </span>
                               <span>{item.response?.length || 0} chars</span>
                             </div>
@@ -359,9 +371,7 @@ export default function Dashboard() {
                           {showDeleteConfirm === item._id && (
                             <div
                               className={`absolute inset-0 rounded-xl p-4 flex flex-col items-center justify-center gap-3 backdrop-blur-sm ${
-                                darkMode
-                                  ? 'bg-red-900/50'
-                                  : 'bg-red-100/50'
+                                darkMode ? 'bg-red-900/50' : 'bg-red-100/50'
                               } z-20`}
                             >
                               <p className="text-sm font-medium">Delete?</p>
@@ -378,7 +388,9 @@ export default function Dashboard() {
                                       : 'bg-red-500 hover:bg-red-600 text-white'
                                   }`}
                                 >
-                                  {deletingId === item._id ? 'Deleting...' : 'Yes'}
+                                  {deletingId === item._id
+                                    ? 'Deleting...'
+                                    : 'Yes'}
                                 </button>
                                 <button
                                   onClick={(e) => {
@@ -416,7 +428,7 @@ export default function Dashboard() {
             darkMode ? 'border-white/10' : 'border-gray-300'
           }`}
         >
-          <FlowChart darkMode={darkMode} />
+          <FlowChart />
         </div>
       </div>
     </div>
