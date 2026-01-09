@@ -418,7 +418,6 @@ export default function Dashboard() {
           </div>
         )}
 
-        {/* Flow Chart - Modern Container */}
         <div
           className={`w-full h-full rounded-2xl overflow-hidden ${
             darkMode
